@@ -11,7 +11,7 @@ Calculate the price per square meter (ppsqm) for each apartment sold. That is, a
 library(dplyr)
 library(knitr)
 library(ggplot2)
-data <- read.csv('Booli_sold.csv')
+data <- read.csv('/Users/sebastianbaarsen/Documents/GitHub/su-mt4007/Homeworks/Homework_2/data/Booli_sold.csv')
 data <- tibble(data)
 
 ```
@@ -49,7 +49,7 @@ by_date <- updated_data %>%
 
 
 ```{r}
-votes <- read.csv("2018_R_per_kommun.csv",sep = ";")
+votes <- read.csv("/Users/sebastianbaarsen/Documents/GitHub/su-mt4007/Homeworks/Homework_2/data/2018_R_per_kommun.csv",sep = ";")
 votes <- tibble(votes)
 votes
 
@@ -86,7 +86,7 @@ kable(head(by_participation,3))
 
 
 ```{r}
-stroke <- read.csv('stroke-data.csv')
+stroke <- read.csv('/Users/sebastianbaarsen/Documents/GitHub/su-mt4007/Homeworks/Homework_2/data/stroke-data.csv')
 stroke
 ```
 
