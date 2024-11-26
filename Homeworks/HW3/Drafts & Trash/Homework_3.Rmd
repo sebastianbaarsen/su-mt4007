@@ -11,9 +11,10 @@ library(tidyr)
 library(patchwork)
 library(GGally)
 
+
 iris <- read.csv('https://raw.githubusercontent.com/su-mt4007/data/refs/heads/main/IRIS.csv')
 
-iris
+head(iris)
 
 
 # Sepal length gainst petal length
@@ -112,7 +113,7 @@ counted_birds <- birds %>%
   summarize(count=sum(Antal,na.rm=TRUE)) %>% 
   arrange(desc(count))
   
-head(counted_birds,3)
+head(counted_birds,10)
 ```
 # Månads fördelnnigen
 ```{r, warning=FALSE, message=FALSE}
@@ -149,6 +150,8 @@ reareast_birds <- counted_birds %>%
   arrange(count)
 
 head(reareast_birds,20)
+
+
 ```
 
 # Rapportörer som är observerat flest Antal fåglar per tillfälle/ med mest 'tur'.
@@ -156,21 +159,107 @@ head(reareast_birds,20)
 Not balance in terms of tillfällen per rapportör. 
 ```{r,warning=FALSE,message=FALSE}
 
-effective <- birds %>% 
+library(knitr)
+lucky_watcher <- birds %>% 
   select(Rapportör,Antal,Startdatum) %>% 
   mutate(Antal = ifelse( is.na(as.numeric(Antal)), NA, as.numeric(Antal))) %>% 
   group_by(Rapportör,Startdatum) %>% 
-  summarize(Antal = sum(Antal,na.rm=TRUE)) %>% 
+  summarize(Antal = sum(Antal,na.rm=TRUE)) %>%
   ungroup(Startdatum) %>% 
   summarize(Totala_antal_fåglar =  sum(Antal),Dagar = n()) %>% 
   mutate(Fågel_per_dag = round(Totala_antal_fåglar/Dagar,1)) %>% 
-  arrange(desc(Fågel_per_dag))
+  arrange(desc(Fågel_per_dag)) %>% 
+  filter(Dagar > 5)
 
 
-head(effective,5)
+kable(head(lucky_watcher,10),caption = '3')
 
 ```
 observed bird by the hour during the day.
+
+```{r, warning = FALSE, message=FALSE}
+library(hms)
+
+first_digit <- birds %>% 
+  select(Rapportör,Antal,Startdatum) %>% 
+  mutate(Antal = ifelse( is.na(as.numeric(Antal)), NA, as.numeric(Antal))) %>% 
+  group_by(Rapportör,Startdatum) %>%
+  filter(!is.na(Antal)) %>% 
+  mutate(Antal =first_digit <- as.numeric(substr(as.character(Antal), 1, 1)))
+birds
+
+
+library(dplyr)
+library(hms)
+
+by_time <- birds %>%
+  select(Artnamn, Starttid, Antal) %>%
+  filter(Artnamn %in% c('Grönsiska',"Sothöna","Gräsand") & !is.na(Starttid)) %>%
+  mutate(Starttid = as.hms(paste0(Starttid, ":00")),Antal = as.numeric(Antal)) %>%
+  filter(!is.na(Antal)  ) %>%
+  mutate(Time_Interval = cut(as.numeric(Starttid),   #divide the time into 30min intervals
+      breaks = seq(0, 86400, by = 1800), 
+      labels = format(seq(
+        as.POSIXct("00:00", format = "%H:%M"), 
+        as.POSIXct("23:30", format = "%H:%M"), 
+        by = "30 mins"), "%H:%M"), 
+      include.lowest = TRUE)) %>% 
+  group_by(Artnamn,Time_Interval) %>% 
+  summarize(count = sum(Antal)) %>% 
+  group_by(Artnamn) %>%
+  mutate(normalized_count = count / sum(count))
+
+by_time
+
+ggplot(by_time, aes(x = Time_Interval, y = normalized_count, color = Artnamn))+
+         geom_bar(stat = 'identity')+
+        theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+# Grönsiska	20211			
+# Sothöna	8308			
+# Gräsand	7167			
+# Storskrake	6750			
+# Vitkindad gås	6345			
+# Storskarv	5281			
+# Björktrast	3173			
+# Koltrast	2750			
+# Vigg	2375			
+# Skrattmås
+
+
+```
+
+```{r}
+by_time_interval <- birds %>%
+  select(Starttid, Antal) %>%
+  filter(!is.na(Starttid) ) %>%
+  mutate(Starttid = as.hms(paste0(Starttid, ":00")),Antal = as.numeric(Antal)) %>%
+  filter(!is.na(Antal)  ) %>%
+  mutate(Time_Interval = 
+      cut(as.numeric(Starttid),   #divides the time into 30min intervals
+      breaks = seq(0, 86400, by = 1800), 
+      labels = format(seq(
+      as.POSIXct("00:00", format = "%H:%M"), 
+      as.POSIXct("23:30", format = "%H:%M"), 
+      by = "30 mins"), "%H:%M"), 
+      include.lowest = TRUE)) %>% 
+  group_by(Time_Interval) %>% 
+  summarize(count = sum(Antal)) %>% 
+  ungroup() %>%
+  mutate(norm_count = count/sum(count))
+
+ggplot(by_time_interval, aes(x = Time_Interval, y = norm_count))+
+    geom_bar(stat = 'identity')+
+    labs(title = 'Observation by time',
+         x='Time intervals',
+         y="Proportion of observed birds",
+         caption = 'figure x')+
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+by_time_interval
+```
+
+
 ```{r, warning=FALSE}
 library(hms)
  birds
@@ -185,13 +274,19 @@ by_time <- birds %>%
 
 by_time
 ```
-Is the above a fair way of determine if you are more likely to spot some birds during the middle of the day? What is the distribution of "fågel-skådning" time?
 
 ```{r}
-birds
-birds %>% 
-  select(Starttid,Sluttid,Startdatum,Slutdatum) %>% 
-  filter(Startdatum != Slutdatum)
+sothöna <- birds %>% 
+  filter(Artnamn =='Sothöna') %>% 
+  select(Antal,Lokalnamn) %>% 
+  mutate(Antal = ifelse( is.na(as.numeric(Antal)), NA, as.numeric(Antal))) %>% 
+  print() %>% 
+  group_by(Lokalnamn) %>% 
+  summarize(count=sum(Antal,na.rm=FALSE)) %>% 
+  arrange(desc(count))
+
+kable(head(sothöna,10),caption = 3)
+
 ```
 
 
