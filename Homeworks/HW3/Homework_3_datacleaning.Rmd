@@ -1,0 +1,70 @@
+---
+title: "Homework_3_del2"
+author: "Sebastian Baarsen"
+date: "2024-11-19"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(tidyr)
+library(patchwork)
+library(GGally)
+```
+
+
+
+
+```{r, warning= FALSE}
+cellphone <- read.csv('https://raw.githubusercontent.com/su-mt4007/data/refs/heads/main/cell_phones_total.csv')
+df <- cellphone
+# konverterar 'k','M' &'B' till siffror
+for (i in 2:length(cellphone[1,])) {
+  for (j in seq_len(nrow(cellphone))){
+
+    if(grepl('k',cellphone[j, i])){
+      cellphone[j, i] <- gsub('k','e3',cellphone[j, i])}
+
+    if(grepl('M',cellphone[j, i])){
+      cellphone[j, i] <- gsub('M','e6',cellphone[j, i])}
+
+    if(grepl('B',cellphone[j, i])){
+      cellphone[j, i] <- gsub('B','e9',cellphone[j, i])}
+  }
+}
+
+# gör alla värden till numeriska (utom namnen)
+cellphone_numeric <- cellphone %>%
+  mutate(across(-iso.3, as.numeric))
+
+# ansätter alla NA innan första nollskilja element per rad som noll
+for(j in seq(nrow(cellphone_numeric))){
+  row <- cellphone_numeric[j,][-1]
+  if(all(is.na(row))){
+    cellphone_numeric[j,][-1] <- numeric(length(cellphone_numeric[j,][-1]))}
+  else{
+    first_nonzero <- which(!is.na(row) & row>0)[1]
+    cellphone_numeric[j,][-1][1:(first_nonzero-1)] <- numeric((first_nonzero-1))}
+}
+
+# tabell som i uppgfiten
+cellphone_numeric %>% 
+  filter(iso.3 %in% c('CHN','IND','USA','IDN','BRA')) %>% 
+  arrange(desc(X2015))
+```
+
+```{r}
+abw <- cellphone_numeric %>% filter(iso.3 == 'AND')
+
+abw
+plot(1:length(abw[-1]),abw[-1])
+```
+
+
+
+
+
+
+
