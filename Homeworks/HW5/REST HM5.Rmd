@@ -1,0 +1,97 @@
+---
+title: "REST"
+author: "Sebastian Baarsen"
+date: "2024-12-04"
+output: html_document
+---
+
+
+
+```{r}
+library(httr2)
+library(jsonlite) # Parse JSON
+library(listviewer) # View Json
+library(tidyverse)
+
+URL <- "http://api.nobelprize.org/2.1/laureates?limit=500&nobelPrizeYear=1901&yearTo=2024&nobelPrizeCategory=phy"
+
+request <- request(URL) 
+response <- req_perform(request)
+json <- response %>% resp_body_string()
+jsonedit(json) # View the JSON
+
+data <- fromJSON(json)
+```
+
+
+```{r}
+#extract the english motivation. Some motivations are repeated cuz the prizes are sometimes shared.
+
+motivations <- data$laureates %>% 
+  select(nobelPrizes) %>% 
+  unnest_longer(nobelPrizes) %>% 
+  unnest_wider(nobelPrizes) %>% 
+  select(motivation) %>% 
+  unnest_wider(motivation) %>% 
+  select(en) %>% 
+  pull(en) %>% 
+  unique() %>% 
+  paste(collapse = ". ")
+ 
+
+```
+
+
+
+
+
+
+
+```{r warning=FALSE}
+library(tm)
+library(wordcloud)
+library(SnowballC)
+library(RColorBrewer)
+
+#polish the text
+mooncloud <- Corpus(VectorSource(motivations))
+mooncloud <- tm_map(mooncloud, content_transformer(tolower))
+mooncloud <- tm_map(mooncloud, removePunctuation)
+mooncloud <- tm_map(mooncloud, removeNumbers)
+mooncloud <- tm_map(mooncloud, stripWhitespace)
+mooncloud <- tm_map(mooncloud, PlainTextDocument)
+
+
+#get the text into a dateframe with word-count
+tdm <- TermDocumentMatrix(mooncloud)
+word_matrix<- as.matrix(tdm)
+word_freqs <- sort(rowSums(word_matrix), decreasing = TRUE)
+word_freqs_df <- data.frame(word = names(word_freqs), freq = word_freqs)
+
+
+
+# get rid of stopwords 
+stopwords <- c("i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now")
+
+
+word_freqs_df <- word_freqs_df %>% 
+  filter(!(word %in% stopwords)) %>% 
+  mutate(freq = freq + 2)   #words that appears less than 3 time doesn't shown, adding 2 solves that issue
+
+
+word_freqs_df
+# generate wordcloud
+wordcloud(
+  words = word_freqs_df$word,     
+  freq = word_freqs_df$freq,     
+  scale = c(3, 0.2),               
+  max.words = Inf,               
+  random.order = FALSE,         
+  rot.per = 0.5,
+  colors = brewer.pal(7, "Dark2"))
+```
+
+
+
+
+
