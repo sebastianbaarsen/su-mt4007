@@ -623,6 +623,7 @@ top_and_bottom_5 <- seindfeld_script_character_proportion %>%
   mutate(rang = ifelse(SEID %in% top_5,"Top 5","Bottom 5")) %>% 
   left_join(season_and_SEID,by = "SEID") %>% 
   group_by(säsong,Character) %>% 
+  print() %>% 
   reframe(medel_share = mean(share), SEID,rang) %>% 
   arrange(SEID)
 
@@ -644,6 +645,7 @@ figur_6 <- ggplot(top_and_bottom_5, aes(x = Character, y = medel_share, fill = C
     legend.text = element_text(size = 12),
      plot.caption = element_text(size = 20))
 figur_6
+
 ```
 
 
