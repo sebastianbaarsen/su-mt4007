@@ -2,7 +2,7 @@
 
 ## Blogpost
 Blogposten finns här:  
-[Seinfeld Analysis](https://sebastianbaarsen.github.io/MT4007-Projekt/Projekt_Blogpost-Seinfeld.html)
+[Seinfeld Analysis](https://sebastianbaarsen.github.io/su-mt4007/Project/Projekt_Blogpost-Seinfeld.html)
 
 ## Projektstruktur
 - `Projekt_Blogpost-Seinfeld.html`: HTML-version av blogposten.
