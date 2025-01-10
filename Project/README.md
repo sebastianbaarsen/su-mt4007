@@ -13,7 +13,7 @@ Blogposten finns här:
 
 ### Sekundär
 - `Projekt_Blogpost-Seinfeld.html`: HTML-version av blogposten.
-- `Projekt_Blogpost-Seinfeld.ipynb`: HTML-version av blogposten.
+- `Projekt_Blogpost-Seinfeld.ipynb`: ipynb-version av blogposten.
 - `seinfeld-data.RData`: Rdata som laddas in i `Projekt_Blogpost-Seinfeld.html`.
 - `seinfeld-data.Rmd`: Rmd som komprimeras till `seinfeld-data.RData`.
 - `datatable.png`: Bild av sammanfattade data.
