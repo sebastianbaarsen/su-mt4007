@@ -316,7 +316,6 @@ Vi saknar 4 avsnitts-scripts. Detta är eftersom de är "clip-shows", sammansvet
 script <- read.csv("scripts.csv")
 script <- script %>% mutate(SEID = ifelse(index<211,"S00E00",SEID), EpisodeNo=ifelse(index<211,0,EpisodeNo)) #separera pilotens-script från SE0101
 
-
 duplicated_rows1 <- script %>% #dublpicera dubbelavsnit
   filter(SEID == "S05E18") %>%
   mutate(SEID = "S05E19")
@@ -327,9 +326,12 @@ duplicated_rows2 <- script %>% #dublpicera dubbelavsnit
   mutate(SEID = "S09E24")
 script <- bind_rows(script, duplicated_rows2)
 
-#väljer ut replikerna och SEID
+#väljer ut replikerna och SEID och ändra Kessler till Kramer
 seindfeld_script <- script %>% select(Character,Dialogue,SEID) %>% 
-  filter(!(Character == "[Setting")) # Detta är inte en del av replikerna 
+  filter(!(Character == "[Setting")) %>%  # Detta är inte en del av replikerna 
+  mutate(Character = ifelse(Character == "KESSLER","KRAMER",Character) ) #Kramer heter Kessler i piloten
+
+head(seindfeld_script)
 
 ```
 
