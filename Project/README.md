@@ -14,10 +14,10 @@ Blogposten finns här:
 ### Sekundär
 - `Projekt_Blogpost-Seinfeld.html`: HTML-version av blogposten.
 - `Projekt_Blogpost-Seinfeld.ipynb`: ipynb-version av blogposten.
-- `seinfeld-data.RData`: Rdata som laddas in i `Projekt_Blogpost-Seinfeld.html`.
+- `seinfeld-data.RData`: Rdata som laddas in i `Projekt_Blogpost-Seinfeld.ipynb`.
 - `seinfeld-data.Rmd`: Rmd som komprimeras till `seinfeld-data.RData`.
-- `datatable.png`: Bild av sammanfattade data.
-- `scripts.csv`:Dataframe av repliker från serien.
+- `datatable.png`: Bild av sammanfattad data.
+- `scripts.csv`: Dataframe av repliker från serien.
 
 ## GitHub Pages
 HTML-filen visas med GitHub Pages i länken ovan. 
